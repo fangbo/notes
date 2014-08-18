@@ -1,0 +1,36 @@
+
+Storage System
+
+    Hard disks are slow for random I/O, fast for sequential I/O
+
+    SSDs are fast for random I/O, but expensive for sequential
+
+
+BTree
+
+    Data structure invented in 1972
+
+    Not keep up with hardware trends
+
+    Every insertion needs a random I/O
+
+    Internal node stores just pivots and pointers for each child.
+
+
+Fractal Tree
+
+    Scales with hardware
+
+    Fast indexing, More indexing, Faster queries
+
+    Great Compression
+
+    No Fragmentation
+
+    Reduced wear on SSDs
+
+    Internal node stores pivots, pointers, BUFFERs for each child.
+
+    Buffer is used to batch up write operations.
+
+

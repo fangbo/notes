@@ -1,0 +1,54 @@
+
+Cache is simple to use
+
+    * Check if the value exits in cache.
+    * If it exits, get the value from cache.
+    * If not, get the value from database, and store in cache for future
+      requests.
+
+What if value is expired
+
+    * Thousands of requests comes.
+    * Databases are hit with numerous processes.
+    * Databases get slower and slower.
+
+How to fix it
+
+    * Ensure that just one process(first one to come) to query database.
+    * Other subsequent processes servers stale value from cache until it is
+      refreshed by the first process.
+    * It is some inconvenient, but it is worth.
+
+Implementation
+
+    * Value is not removed physically if it is expired.
+    * A lock is used to ensure that only one process can visit database.
+    * If a process get a expired value from cache, it tries to get a lock and
+      regenerate the value from database.
+    * If a process fails to get the lock it use the expired data which is a
+      stale one.
+
+Code
+
+    // get data from cache
+    Data = Cache.get(key)
+
+    // check data exists or is a stale one
+    if (data & !data.isStale()) {
+        return data.value()
+    }
+
+    // we should query database to regenerate the data
+    if (QueryLock.acquire()) {
+        data = database.query()
+
+        Cache.put(key, data)
+
+        QueryLock.release()
+
+        return data.value()
+    } else {
+
+        return data.value()
+
+    }

@@ -1,0 +1,87 @@
+
+What is a Memtable
+
+    Memtable is used to store key-value in memory. The underlying data structure is
+    a skiplist.
+
+
+When be called
+
+    When one or some key-values are added by DB:Put(), the items are wrapped by WriteBatch.
+    MemTableInserter, a WriteBatch::Handler implementation, is used to get the key-value
+    from the WriteBatch.
+
+
+Interface
+
+    Memtable provides some basic interface to manlipluate the key-value.
+
+    // return a iterator for the table
+    Iterator* NewIterator();
+
+    // add a key-value item with a squence number into the table
+    void Add(SequenceNumber seq, ValueType type,
+        const Slice& key,
+        const Slice& value);
+
+    // get the value fot the specific key from the table
+    bool Get(const LookupKey& key, std::string* value, Status* s);
+
+    // get the memory usage of the table
+    size_t ApproximateMemoryUsage();
+
+    // increment the reference counter of the table
+    void Ref()
+
+    // decrement the reference counter of the table
+    void Unref()
+
+
+Item Structure
+
+
+
+        internal key size   key   sequence with  value size   value
+                                  value type
+    |--------------------|-------|-------------|------------|-----------------|
+
+
+    internal key size = key.size() + 8
+
+    sequence with value type = (sequence << 8) | ValueType
+
+
+Comparator
+
+    InternalKeyComparator which is defined in dbformat.cc is used to compare
+    the items in memtable.
+
+    If we study the logic of InternalKeyComparator::Compare, we can find that
+    the key-value items are stored in memtable order by (user_key ASC, sequence_number DESC)
+
+    int InternalKeyComparator::Compare(const Slice& akey, const Slice& bkey) const {
+    // Order by:
+    //    increasing user key (according to user-supplied comparator)
+    //    decreasing sequence number
+    //    decreasing type (though sequence# should be enough to disambiguate)
+    int r = user_comparator_->Compare(ExtractUserKey(akey), ExtractUserKey(bkey));
+    if (r == 0) {
+        const uint64_t anum = DecodeFixed64(akey.data() + akey.size() - 8);
+        const uint64_t bnum = DecodeFixed64(bkey.data() + bkey.size() - 8);
+        if (anum > bnum) {
+        r = -1;
+        } else if (anum < bnum) {
+        r = +1;
+        }
+    }
+    return r;
+    }
+
+
+Example
+
+    According the description about MemTable above, a memtable example may like:
+
+    a(3) - a(2) - a(1) - b(4) - c(7) - c(6)
+
+

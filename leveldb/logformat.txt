@@ -1,0 +1,33 @@
+
+LOG FORMAT
+===========
+
+
+     seqeunce      record       records array(RECORD FORMAT)
+                   count
+    |-------------|--------|-----------------------------------------------------|
+    0             8        12                                                   n
+
+
+RECORD FORMAT
+=============
+
+
+      kTypeValue    key           value
+      1
+    |------------|------------|--------------------|
+    0            1            k                    n
+
+                INSERT or UPDATE
+
+    * key and value are writed using method PutLengthPrefixedSlice
+    * key and value are read usingg method GetLengthPrefixedSlice
+
+
+      kTypeDeletion     key
+      0
+    |------------|------------|
+    0            1            k
+
+               DELETE
+

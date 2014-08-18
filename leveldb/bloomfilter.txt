@@ -1,0 +1,142 @@
+
+FilterPolicy
+
+    Leveldb defines an abstract interface called FilterPolicy in filter_policy.h
+    There are some abstrace methods defined in the FilterPolicy.
+
+    // Use the filter policy to summarize the keys[0...n] to dst.
+    // After the method is invoked, parameter dst has the information about
+    // the keys. We can use the FilterPolicy::KeyMayMatch to check if one key
+    // exists in the byte stream or not.
+
+    virtual void CreateFilter(const Slice* keys, int n, std::string* dst)
+
+
+    // Check one key if exists in a filter or not.
+
+    virtual bool KeyMayMatch(const Slice& key, const Slice& filter) const = 0;
+
+
+BloomFilter
+
+    The BloomFilter's implementation is in bloom.cc.
+
+    The detail of implementation is below:
+
+    virtual void CreateFilter(const Slice* keys, int n, std::string* dst) const {
+        // Compute bloom filter size (in both bits and bytes)
+        size_t bits = n * bits_per_key_;
+
+        // For small n, we can see a very high false positive rate.  Fix it
+        // by enforcing a minimum bloom filter length.
+        if (bits < 64) bits = 64;
+
+        // the total bytes and bits needed for the data
+        // denotes that:
+        //    NEEDED_BITS as the bit number we need, that is n * bits_perf_key_
+        //    REAL_BITS as the real number we malloc
+        //    * REAL_BITS >= NEEDED_BITS
+        size_t bytes = (bits + 7) / 8;
+        bits = bytes * 8;
+
+        const size_t init_size = dst->size();
+        dst->resize(init_size + bytes, 0);
+        dst->push_back(static_cast<char>(k_));  // Remember # of probes in filter
+
+        // the data array we write to.
+        char* array = &(*dst)[init_size];
+
+        // for every key, we build the key into the bits array
+        for (size_t i = 0; i < n; i++) {
+
+            // Use double-hashing to generate a sequence of hash values.
+            // See analysis in [Kirsch,Mitzenmacher 2006].
+
+            uint32_t h = BloomHash(keys[i]);
+
+            // the delta for next hasing
+            const uint32_t delta = (h >> 17) | (h << 15);  // Rotate right 17 bits
+
+            // iterate some times
+            for (size_t j = 0; j < k_; j++) {
+
+                // Get the bit position for the information.
+                const uint32_t bitpos = h % bits;
+
+                // !!!IMPORTANT!!!
+                // write the information into one BIT using |
+                // the reverse operation is:
+                //      array[bitpos/8] & (1 << (bitpos % 8))
+
+                array[bitpos/8] |= (1 << (bitpos % 8));
+
+                h += delta;
+            }
+        }
+     }
+
+
+When to Use
+
+    FilterPolicy is used when a table is constructed. It is used in FilterBlockBuilder.
+    A FilterBlockBuilder is used to build all the filter for a particular Table.
+    FilterBlockBuilder generate a single string as a special block in the Table.
+
+
+
+A Filter Block Structure
+
+          0  ---- start of a filter block
+             |
+             |
+             |  filter 0
+             |
+             |
+             ---- start of filter 1
+             |
+             |  filter 1
+             |
+             |
+             ---- start of filter 2
+             |
+             |
+             |  filter 2
+             |
+             |
+             |
+             ---- start of offsets arrays
+             |
+             |
+             |  offset arrays, every offset is a 32 bit unsigned int.
+             |
+             |
+             |
+             |
+             ----
+             |
+             |  size of pure filter data, a 32 bit unsigned int.
+             |  size(filter0) + size(filter1) + size(filter2)
+             |
+             ----
+             |
+             |  constant value 11, a byte.
+             |
+             |
+          n  ----  end of filter block
+
+    filters offsets:
+
+        A array of filter item index. Every offset is 4 bytes.
+
+
+Important Issues
+
+    * A filter block contains several filter items.
+
+    * Each filter item is created for 2KB of data (2^11).
+
+    * Filter offsets and total size of filters is stored in filter block.
+
+    * FilterBlock::Start must be called before add keys to FilterBlock.
+
+    * FilterBlock::Finish is used to construct the filter block data.

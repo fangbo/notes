@@ -1,0 +1,18 @@
+
+SkipList is the basic container for MemTable. SkipList has simple
+implementation and high performance.
+
+SkipList is a template.
+
+The code is defined in db/skiplist.h
+
+# Basic operation interface:
+
+    void Insert(const Key& key)
+
+    bool Contains(cons)
+
+# Comparator
+
+
+# Iterator

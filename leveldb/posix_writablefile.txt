@@ -1,0 +1,69 @@
+
+WritableFile
+
+    Leveldb provides a classic file operation demo. WritableFile is an abstract
+    interface for file written. If we need to design and implement the interface,
+    leveldb gives us a good example.
+
+
+Abstract Interfaces
+
+    The interfaces are simple and clear.
+
+    virtual Status Append(const Slice& data) = 0;
+    virtual Status Close() = 0;
+    virtual Status Flush() = 0;
+    virtual Status Sync() = 0;
+
+
+Implementation
+
+    The implementation for posix is PosixWritableFile. A PosixWritableFile instance is created by
+    PosixEnv::NewWritableFile(). In this method, a FILE pointer is first created using:
+
+        FILE* f = fopen(fname.c_str(), "w");
+
+    Then, a PosixWritableFile is constrcuted with the FILE pointer as the constructor method argument.
+
+    PosixWritableFile only has two instance variables.
+
+        std::string filename_;      // the file's filename
+        FILE* file_;                // the raw file pointer
+
+
+Implemented Methods
+
+    * Append
+
+    Append is implemented by invoking *fwrite_unlocked*
+
+        size_t r = fwrite_unlocked(data.data(), 1, data.size(), file_);
+
+    * Flush
+
+    Flush is implemented by invoking *fflush_unlocked*
+
+        if (fflush_unlocked(file_) != 0) {
+            return IOError(filename_, errno);
+        }
+        return Status::OK();
+
+    * Sync
+
+    Sync is implemented by invoking *fflush_unlocked* and *fdatasync*
+
+        if (fflush_unlocked(file_) != 0 ||
+            fdatasync(fileno(file_)) != 0) {
+            s = Status::IOError(filename_, strerror(errno));
+        }
+        return s;
+
+    * Close
+
+    Close is implemented by invoking *fclose*
+
+        if (fclose(file_) != 0) {
+            result = IOError(filename_, errno);
+        }
+        file_ = NULL;
+

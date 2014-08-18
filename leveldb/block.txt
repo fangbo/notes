@@ -1,0 +1,66 @@
+
+Block Structure
+
+    A table block is constructed of multiple key-value items. The block
+    building is implemented in block_builder.cc.
+
+    A block maintains several compression items. Every 16 key-values are in one
+    compression subblock.
+
+
+        A Block Structure
+
+     0  ----
+        |
+        |
+        |       compression sub-block item 0
+        |
+        |
+    110 ----
+        |
+        |       compression sub-block item 1
+        |
+        |
+        ----
+        |
+        |       compression sub-block item 2
+        |
+        |
+    350 ----    start of item offsets
+        |
+        |
+        |       every offset is 4 bytes.
+        |
+        ----
+        |
+        |       size of item offset (4 bytes)
+        |
+     n  ----
+
+
+        A Compression Subblock Structure
+
+     0  ----
+        |
+        |       shared key size (varint 32)
+        |
+        ----
+        |
+        |       nonshared key size (varint 32)
+        |
+        ----
+        |
+        |       value size (varint 32)
+        |
+        ----
+        |
+        |
+        |       nonshared key data
+        |
+        |
+        ----
+        |
+        |
+        |       value data
+        |
+     n  ----

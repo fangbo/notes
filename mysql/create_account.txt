@@ -1,0 +1,11 @@
+
+
+# grant specific privileges for an account with name account_name on a db with
+# name dbname
+
+    grant insert,delete,update,select,create,execute,alter,drop,index,CREATE VIEW,LOCK TABLES,CREATE ROUTINE,ALTER ROUTINE,EXECUTE,trigger,show view,event,CREATE TEMPORARY TABLES on \`dbname\`.* to 'account_name'@'%'; 
+
+
+# grant all privileges for an account with name account_name on all db
+
+    grant * on *.* to 'account_name'@'%'

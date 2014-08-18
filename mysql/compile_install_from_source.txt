@@ -1,0 +1,41 @@
+
+# download source code.
+
+# compile and install using command below
+
+
+    # create user and make dir 
+
+    > sudo groupadd mysql
+
+    > sudo useradd mysql:mysql
+
+    > sudo mkdir /usr/local/mysql
+
+    > sudo chown -R mysql:mysql /usr/local/mysql
+
+    # compile source code
+
+    > cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql  -DMYSQL_DATADIR=/usr/local/mysql/data  -DSYSCONFDIR=/etc  -DWITH_MYISAM_STORAGE_ENGINE=1  -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_MEMORY_STORAGE_ENGINE=1 -DWITH_READLINE=1  -DMYSQL_UNIX_ADDR=/tmp/mysqld.sock -DMYSQL_TCP_PORT=3306    -DENABLED_LOCAL_INFILE=1    -DWITH_PARTITION_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all  -DDEFAULT_CHARSET=utf8  -DDEFAULT_COLLATION=utf8_general_ci
+
+    # install
+
+    > make
+
+    > make install
+
+    # build conf file from conf template
+
+    > cd /usr/local/mysql/
+
+    > cp support-files/my-medium.cnf my.cnf
+
+    > ./scripts/mysql_install_db --defaults-file=/usr/local/mysql/my.cnf
+
+    # startup mysql server
+
+    > /usr/local/mysql/bin/mysqld --defaults-file=/usr/local/mysql/my.cnf
+
+    # initialze root account
+
+    > ./bin/mysqladmin --defaults-file=/usr/local/mysql/my.cnf password

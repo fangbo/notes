@@ -1,0 +1,21 @@
+
+# create a account named replicator for slave.
+# set the master_ip to the real ip of master server.
+
+    set sql_log_bin=0;GRANT REPLICATION SLAVE  ON *.* TO replicator@'%(master_ip)' IDENTIFIED BY 'xlia9810pal@aly' ;
+    set sql_log_bin=0;GRANT REPLICATION CLIENT ON *.* TO replicator@'%(master_ip)' ;
+    set sql_log_bin=0;GRANT SUPER  ON *.* TO replicator@'%(master_ip)' ;
+    set sql_log_bin=0;GRANT RELOAD ON *.* TO replicator@'%(master_ip)' ;
+    set sql_log_bin=0;GRANT SELECT ON *.* TO replicator@'%(master_ip)' ;
+    flush privileges;
+
+
+# start slave
+
+    stop slave;,
+
+    CHANGE MASTER TO MASTER_HOST='%(master_ip)', Master_Port=%(master_port), MASTER_USER='replicator', MASTER_PASSWORD='xlia9810pal@aly', MASTER_LOG_FILE='%(master_log_file)', MASTER_LOG_POS=%(master_log_pos) ;,
+
+    start slave;
+
+

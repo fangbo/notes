@@ -1,0 +1,43 @@
+
+WriteBatch
+
+    * WriteBatch is responsible to make batch writes in a transaction.
+
+    * When a key-value is writed to a db using the DB:Put method, a WriteBatch
+    object is created to hold the information.
+
+    * DB:Write(WriteOption, WriteBatch) can be called by client to do batch write.
+
+
+Structure
+
+    * WriteBatch maintains a property rep_ to represent the data needed to be inserted or
+      deleted.
+
+    * rep_ is char*
+
+    * Actually, rep_ is a LOG entry.
+
+    * The static method WriteBatchInternal::Contents return the data. This
+      method is called in db_impl.cc. The returned data is append to the log
+      file by calling the method log::Writer::AddRecord.
+
+
+Iterate Interface
+
+    * WriteBatch can be considered as a data collection. Store a batch of
+      key-value.
+
+    * So a iterate method provides a interface for client to operate each data.
+
+    * The interface WriteBatch::Handler defines the operation interface. The
+      object is used the iterate method.
+
+    * This is a cool design. WriteBatch is responsible to store data, and does
+      not care about how to process each data. The process logic should be
+      provided by client.
+
+    * MemTableInserter is the WriteBatch::Handler implementation. It is
+      responsible to Put the key-value into MemTable or Delete key from MemTable.
+
+

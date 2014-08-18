@@ -1,0 +1,23 @@
+
+
+# how to backup a mysql instance
+
+innobackupex --user=root --host=127.0.0.1 --port=3001
+ --tmpdir=/home/mysql/backup/3001
+ --slave-info
+ --defaults-file=/etc/my3001.cnf
+ --stream=tar
+ /home/mysql/backup/3001
+ 2>>/home/mysql/backup/3001/cust8685_10.118.136.44_3001_201407280200_7280200.log
+ |
+ gzip > /home/mysql/backup/3001/XTRA_10.118.136.44_3001_201407280200_7280200.tar.gz.tmp
+
+
+# how to recover a mysql instance
+
+innobackupex-1.5.1
+ --defaults-file=/etc/my.cnf
+ --ibbackup=xtrabackup_51
+ --apply-log
+ {backup_data_dir}
+ 2>{recover_log_file_path}
