@@ -1,0 +1,29 @@
+
+# Global Configuration
+
+    Every software has its only configuration. In leveldb, the configuration is
+    implemented by Options. The options is taken as constructor method parameter
+    for many Objects, such as TableBuilder, BlockBuilder.
+
+    Hadoop has the same design strategy. The class Configurations in Hadoop holds
+    the global configurations and many classes use this Configurations instance.
+
+
+# Raw Data Wrapper
+
+    The class Slice is a wrapper of raw data. A custom raw data wrapper is
+    important for Classes's comunication. It provides consistences.
+
+
+# Abstract File I/O Data Type
+
+WritableFile and RandomAccessFile is the abstract data type for file I/O
+operation. These data types can simply file operations and give opportunities
+to cross platform.
+
+
+
+
+
+
+
