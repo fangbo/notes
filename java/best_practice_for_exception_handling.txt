@@ -1,0 +1,88 @@
+
+Some best practices for exception handling in java programming.
+
+# Never swallow the exception in try catch.
+
+    catch (NoSuchMethodException e) {
+        return null;
+    }
+
+# Declare the specific checked exceptions that your method can throw.
+
+    // Incorrect way
+    public void foo() throws Exception {}
+
+    // Correct way
+    public void foo() throws SpecificException1, SpecificException2 {}
+
+# Do not catch Exception class rather catch specific sub classes.
+
+    // Incorrect way
+
+    try {
+        someMethod();
+    } catch (Exception e) {
+        LOGGER.error("failed!", e);
+    }
+
+# Never catch Throwable class.
+
+# Always correctly wrap the exceptions in custom exceptions so that stack
+  trace is not lost.
+
+    // Incorrect way
+    catch (NoSuchMethodException e) {
+        throw new MyException("error message!" + e.getMessage());
+    }
+
+    // Correct way
+    catch (NoSuchMethodException e) {
+        throw new MyException("error message!", e);
+    }
+
+# Either log the exception or throw it but never do both.
+
+    // Incorrect way
+    catch (NoSuchMethodException e) {
+        logger.error("error message", e);
+        throw e;
+    }
+
+# Never throw any exception from finally block.
+
+    try {
+        someMethod();
+    } finally {
+        cleanUp();      // make sure clearUp method never throw exceptions.
+    }
+
+# Don't use printStackTrace() statement or similar methods
+
+# Use finally blocks instead of catch blocks if you are not going to handle
+  exception.
+
+    try {
+        someMethod();
+    } finally {
+        cleanUp();
+    }
+
+# Always remember "Throw early catch late" principle
+
+# Always clean up resources after handling the exception.
+
+# Throw only relevant exception from a method.
+
+# Never use exceptions for flow control in you program
+
+# Validate use input to catch adverse conditions very early in request
+  processing.
+
+# Pass all relevant information to exceptions to make them informative as much
+  as possible
+
+# Always terminate the thread which it is terminated
+
+# Use template methods for repeated try-catch
+
+# Document all exceptions in your application in Javadoc
