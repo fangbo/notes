@@ -1,0 +1,100 @@
+
+When table file is created.
+
+    A table file is created in compaction.
+
+
+Table File Structure
+
+     0  ----    start of file
+        |
+        |       DATA BLOCK
+        |
+        ----
+        |
+        |       DATA BLOCK
+        |
+        ----
+        |
+        |       DATA BLOCK
+        |
+        ----
+        |
+        |       FILTER BLOCK (if filter policy is set)
+        |
+        ----
+        |
+        |       META FOR FILTER BLOCK (store filter name, offset and size of filter block)
+        |
+        ----
+        |
+        |       INDEXES FOR DATA BLOCKs (store offset and size of data blocks)
+        |
+        ----
+        |
+        |       FOOTER
+        |
+        ----    end of file
+
+
+    # DATA BLOCK is created by BlockBuilder
+
+    # FILTER BLOCK is created by FilterBlock
+
+    # META FOR FILTER BLOCK is created by BlockBuilder
+
+    # INDEXES FOR DATA BLOCKs is created by BlockBuilder
+
+    # FOOTER is created by Footer
+
+
+DATA BLOCK structure
+
+
+        ----    start of block
+        |
+        |       Raw data of block, created by BlockBuilder
+        |
+     k  ----
+        |
+        |       compression type (1 byte, 0x0: no compression, 0x1: snappy compression)
+   k+1  ----
+        |
+        |       crc (4 bytes)
+        |
+   k+5  ----    end of block
+
+
+FOOTER BLOCK structure
+
+
+     k  ----    start of footer
+        |
+        |
+        |       offset and size of FILTER META INDEX BLOCK
+        |
+        ----
+        |
+        |
+        |       offset and size of INDEX BLOCK
+        |
+        ----
+        |
+        |
+        |       padding to 40 bytes (00000000000....)
+        |
+        |
+  k+40  ----
+        |
+        |
+        |       static_cast<uint32_t>(kTableMagicNumber & 0xffffffffu) (8 bytes)
+        |
+        |
+        ----
+        |
+        |
+        |       static_cast<uint32_t>(kTableMagicNumber >> 32) (8 bytes)
+        |
+        |
+  k+48  ----    end of foot
+
