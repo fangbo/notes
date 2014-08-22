@@ -1,0 +1,113 @@
+
+This is a note and abstract from:
+
+    http://codecapsule.com/2013/04/03/implementing-a-key-value-store-part-4-api-design/
+
+In this article, the author studies the APIs of four key-value stores and
+database systems: LevelDB, Kyoto, Cabinet, BerkekeyDB and SQLite3. He comapres
+the naming conventions and method prototypes.
+
+
+# General principles for API design
+
+The author agrees that designing a good API is really very hard. He recommends the articles
+about how to design a good api from Joshua Bloch:
+
+    http://www.infoq.com/presentations/effective-api-design
+
+    http://www.infoq.com/articles/API-Design-Joshua-Bloch
+
+There are two important principles the author states.
+
+    * When in doubt, leave it out
+
+    When not sure if a funtionality, class, method or parameters should be
+    included in the API, do not include it
+
+    * Don't make the clients do anything the library could do
+
+    Client should not execute a series of function calls and plug the outputs of
+    each function into the input of the next one. API can provide a function to do
+    this series of function calls.
+
+
+# Comapring the APIs of existing databases
+
+* Opening and closing a database
+
+In this section, the author compares the API about opening and closing a
+database.  He prefers the style of Kyoto Cabinet and Berkeley DB which is to
+instantiate a database object and then call Open() and Close() methods on it.
+
+    /* Kyoto Cabinet */
+    HashDB db;
+    db.open("dbfile.demo", HashDB::OWRITE | HashDB::OCREATE);
+    ...
+    db.close();
+
+
+    /* Berkeley DB */
+    DB db(NULL, 0);
+    db.open(NULL, "my_db.db", NULL, DB_BTREE, DB_CREATE, 0);
+    ...
+    db.close(0);
+
+* Reads and Writes
+
+The author states that LevelDB and Kyoto Cabinet have nice getter/setter
+symmetrical interfaces. The prototype for the setter methods, Put() and set()
+are very similar: the key is passed by value and the value is passed as a
+pointer so that is can be updated by the call. The values are not returned by
+the calls, the returns are for error management here.
+
+The author is more inclined to do it as LevelDB, with Get() and Put(). The
+reason for this is that the words "Get" and "Set" are very similar as they
+differ by only one letter.  When reading code it will be clearer and require
+less cognitive work to read "Get" and "Put" instead.
+
+    /* LevelDB */
+
+    std::string value;
+    db->Put(leveldb::WriteOptions(), "key1", &value);
+    db->Get(leveldb::ReadOptions(), "key1", value);
+
+
+* Iteration
+
+    /* LevelDB */
+
+    leveldb::Iterator* it = db->NewIterator(leveldb::ReadOptions());
+    for (it->SeekToFirst(); it->valid(); it->Next()) {
+        cout << it->key().ToString() << ": " << it->value().ToString() << endl;
+    }
+
+
+The author thinks that iterator approach is clearer and more "C++ compliant", because
+it is how the collections of STL are being accessed in C++.
+
+
+* Parametrization
+
+Design an Options class is a good choice. Leveldb is doing as that.
+
+    /* LevelDB */
+    leveldb:DB* db;
+    leveldb:Options options;
+    options.create_if_missing = True;
+    options.compression = leveldb:kNoCompression;
+    leveldb::DB::Open(options, '/tmp/demo', &db);
+
+    leveldb:WriteOptions write_options;
+    write_options.sync = True;
+    db->Put(write_options, "key", "value");
+
+However the author thinks it is better to take the Options parameter as the
+last parameter.
+
+* Error Management
+
+Returning the error code and avoid use of C++ exceptions is the right thing to
+do. Using a Status class like LevelDB is doing it allows to avoid C++
+exceptions, while preventing any coupling to other parts of the architecture.
+
+
