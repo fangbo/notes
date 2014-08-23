@@ -1,0 +1,59 @@
+
+
+Raft is a consensuus algorithm for managing a replicated log.  It produces a
+result equivalent to (multi-)Paxos, and it is as efficient as Paxos. Raft is
+more understandable than Paxos and provides a better foundation for building
+practical systems.
+
+Raft seperates the key elements of consensus, such as leader election, log
+replication, and safety, and it enforces a stronger degree of coherency to
+reduce the number of state that must be considered.
+
+
+# Novel Features
+
+    * Strong leader
+
+    A stronger form of leadership than other consensus algorithms is used in Raft.
+    For example,  log entries only flow from the leader to other servers.
+
+    * Leader election
+
+    Raft uses a randomized timers to select leaders. This add only a small amount of
+    mechanism to the heartbeats already required for any consensus algorithm, while
+    resolving conflicts simply and rapidly.
+
+    * Membership changes
+
+    Raft uses a new *joint consensus* approach for changing the set of servers in
+    the cluster. This allows the cluster to continue operating normally during
+    configuration changes.
+
+
+# Replicated state machines
+
+Consensus algorithms typically arise in the context of replicated state
+machine.  State machines on a collection of servers compute identical copies of
+the same state and can continue operating even if some of the servers are down.
+The consensus alogrithm manages a replicated log containing state machine
+commands from clients. The state machines process identical sequences of
+commands from the logs, so they produce the same outputs.
+
+    * The ensure safety under all non-Byzantine conditions, including network
+      delays, partitions, and package loss, duplication and reordering.
+
+    * They are fully available as long as any majority of the servers are
+      operational and can comminuate with each other and with clients.
+
+    * They do not depend on timing to ensure the consistency of the logs:
+      faulty clocks and extreme message delays can, at worst, cause availability
+      problems.
+
+    * A command can complete as soon as a majority of the cluster has repsond
+      to a single round of remote procedure calls; a minority of slow servers
+      need not impact overall system performance.
+
+
+# Paxos's Flaws
+
+
