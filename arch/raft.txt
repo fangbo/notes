@@ -1,6 +1,6 @@
 
 
-Raft is a consensuus algorithm for managing a replicated log.  It produces a
+Raft is a consensus algorithm for managing a replicated log.  It produces a
 result equivalent to (multi-)Paxos, and it is as efficient as Paxos. Raft is
 more understandable than Paxos and provides a better foundation for building
 practical systems.
@@ -60,5 +60,63 @@ commands from the logs, so they produce the same outputs.
 
     * Paxos does not provide a good foundation for building practical
       implementations.
+
+It is simpler and more efficent to build a system around a log, where new
+entries are appended sequentially in a constrained order.
+
+
+# Understandability Approaches.
+
+Raft divedes problems into seperate pieces that could be solved, explained, and
+understood relatively independently. For example: leader selection, log
+replication, safety and membership changes.
+
+Another approach way is to simplify the state space by reducing the number of
+states to consider, making the system more coherent and eliminating
+nondeterminism where possible. Log are not allowed to have holes and Raft
+limits the ways in which logs can become incosistent with each other. Raft uses
+randomization to simplify the leader election algorithm.
+
+
+# Raft Consensus Algorithm
+
+Leader
+
+    Leader has complete responsibility for managing the replicated log.
+
+    Leader accepts log entries from clients, repliates them on other servers,
+    tell servers when it is safe to apply log entries to their state machines.
+
+    Leader simplifies the management of replicated log.
+
+
+Three relatively independent subprolems
+
+    Leader election
+
+    Log replication
+
+    Safety: if any server has applied a particular log entry into its state
+    machine, then no other server may apply a different command for the same
+    log index.
+
+
+Server role
+
+    * LEADER
+
+    Raft ensures that there is at most one leader in a given time.
+
+    * FOLLOWER
+
+    * CANDIDATE
+
+
+Terms
+
+    Raft divides time into terms of arbitrary length and each term begins
+    with an election.
+
+
 
 
