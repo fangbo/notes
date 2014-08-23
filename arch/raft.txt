@@ -78,7 +78,7 @@ limits the ways in which logs can become incosistent with each other. Raft uses
 randomization to simplify the leader election algorithm.
 
 
-# Raft Consensus Algorithm
+# Basic of Raft Consensus Algorithm
 
 Leader
 
@@ -90,7 +90,7 @@ Leader
     Leader simplifies the management of replicated log.
 
 
-Three relatively independent subprolems
+Three Relatively Independent Subprolems
 
     Leader election
 
@@ -101,7 +101,7 @@ Three relatively independent subprolems
     log index.
 
 
-Server role
+Server Role
 
     * LEADER
 
@@ -115,7 +115,67 @@ Server role
 Terms
 
     Raft divides time into terms of arbitrary length and each term begins
-    with an election.
+    with an election. A single leader manages the cluster until the end
+    oif the term.
+
+    Terms act as a logical clock.
+
+    Current terms are exchanged whenever servers communicate. Server updates its
+    current term to a larger one if its current term is smaller than the other's
+
+
+RPC Interface
+
+    * RequestVote
+
+    These RPCs are initiated by candidatess during elections.
+
+    * AppendEntries
+
+    They are initiated by leaders to replicate log entries and to privide
+    a form of heartbeat.
+
+    Servers issue RPCs in paranell for best performance.
+
+
+# Lead Election
+
+Raft uses a hearbeat mechnism to trigger leader election.
+
+
+    * When server starts up, it is a follower
+
+                timeout,
+                new election
+    Follower   --------------->  Candidate
+
+
+    * A candidate remains if it is timeout and new election is launched
+
+                timeout,
+                new election
+    Candidate  --------------->  Candidate
+
+
+    * A candiate becomes a leader if it receives votes from majority of servers
+
+                receives votes from
+                majority of servers
+    Candidate  --------------->  Leader
+
+
+    * A candidate becomes a follower if it discovers current leader or new term
+
+                discovers current leader
+                or new term
+    Candidate  --------------->  Follower
+
+
+    * A leader becomes a follower if it discovers server with higher term
+
+                discovers server
+                with higher term
+    Leader     --------------->  Follower
 
 
 
