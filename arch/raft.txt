@@ -54,6 +54,11 @@ commands from the logs, so they produce the same outputs.
       need not impact overall system performance.
 
 
-# Paxos's Flaws
+# Paxos's Drawbacks
+
+    * Paxos is exceptionally difficult to understand.
+
+    * Paxos does not provide a good foundation for building practical
+      implementations.
 
 
