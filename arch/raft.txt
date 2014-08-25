@@ -178,5 +178,26 @@ Raft uses a hearbeat mechnism to trigger leader election.
     Leader     --------------->  Follower
 
 
+RequestVote RPC
+
+    ARGUMENTS:
+
+    term            candidate'sterm
+    candidateId     candidate requesting vote
+    lastLogIndex    index of candidate's last log entry
+    lastLogTerm     term of candidate's last log entry
+
+    OUTPUT:
+
+    term            currentTerm, for candidate to update itself
+    voteGranted     true means candidate recevied vote
+
+    RULES:
+
+    * Reply false if term < currentTerm
+
+    * If votedFor is null or candidateId, and candidate's log is at least
+      as up-to-date as receiver's log, grant vote.
+
 
 
