@@ -1,0 +1,63 @@
+
+
+# Metrics is important
+
+For a distributed system, a clear and accurate metrics system is essential.
+The metrics system provides the detail information about the system including
+of performance, counters and errors.
+
+Hadoop designs a clear metrics framework. Numerous counters are collected by
+this metrics framework, and these data provide details for us to observe the
+running system.
+
+
+# Architecture and Principles
+
+Metrics system provides abstract interface and data type.  The main principle
+is that data is collected, stored and exported by framework.  Client is
+responsible for providing and updating the specific metric data.
+
+MetricsRecord and Updater take as bridge between client and framework.
+Normally, client create a MetricsRecord instance by invoking the method
+MetricsContext.createRecord and is referenced by client. Client must build a
+class which is the implementation of The interface Updater.This Updater object
+should be registed to MetricsContext by calling MetricsContext.registUpdater.
+In method doUpdate(), client has the opportunity to update the metrics values.
+
+MetricsContext creates and manages a Timer which invokes all the
+Updater.doUpdate at regular time intervals.
+
+
+# Main Interfaces
+
+* MetricsContext
+
+    MetricsContext defines main interface of the metrics framework.
+
+    // Create a new MetricsRecord with the given recordName
+    // Client should use the method to create its own MetricsRecord
+
+    MetricsRecord createRecord(String recordName)
+
+    // Register a callback to be called at regular time intervals.
+
+    void registerUpdater(Updater updater)
+
+* ContextFactory
+
+    ContextFactory is responsible to create a MetricsContext object. All the
+    MetricsContext objects are stored in the field #contextMap#.
+
+    ContextFactory is singleton and the static method getFactory returns the
+    only ContextFactory's instance.
+
+* Updater
+
+    Updater is a interface and defines only one method #doUpdate(MetricsContext)#.
+    Client's specific Updater implementation is registered in MetricsContext.
+    doUpdate is the callback method for MetricsContext.
+
+* MetricsRecord
+
+    
+
