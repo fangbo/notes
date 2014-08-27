@@ -59,5 +59,34 @@ Updater.doUpdate at regular time intervals.
 
 * MetricsRecord
 
-    
+    MetricsRecord holds the metrics value and provides method for client to update
+    them.  It is created by MetricsContext and held by client. Typically, when
+    Updater.doUpdate is invoked, client should use the MetricsRecord to refresh the
+    metrics values.
 
+    MetricsRecord can considered as a row in database, and metrics values can be taken
+    as columns which have a name to identify the value.
+
+    setMetric(String metricName, float metricValue)
+
+    incrMetric(String metricName, int metricValue)
+
+
+# Other Utility Components
+
+Metrics framework also provides some utility classes such as MetricsRegistry,
+MetricsIntValue, MetricsTimeVaringInt. MetricsRegistry is collection of
+MetricsBase.  A MetricsBase object is registered in MetricsRegistry when it is
+created. Client can use MetricsRegistry.getMetricsList to get all the
+MetricsBase objects. MetricsBase defines a pushMetrics(MetricsRecord) to update
+the metrics value to a specific MetricsRecord.
+
+
+# What can be learned from this metrics
+
+    * Framework provides abstract data type.
+
+    * Framework provides mechanism for client to update data, typically it is
+      reached by an interface.
+
+    * Framework only manage the abstrac datas.
