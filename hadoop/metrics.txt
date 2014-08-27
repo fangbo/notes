@@ -27,6 +27,12 @@ In method doUpdate(), client has the opportunity to update the metrics values.
 MetricsContext creates and manages a Timer which invokes all the
 Updater.doUpdate at regular time intervals.
 
+    ContextFactory ===> MetricsContext
+
+    MetricsContext = MetricsRecord(name) + MetricsRecord(name) + MetricsRecord(name) + ...
+
+    MetricsRecord = Metrics(name, value) + Metrics(name, value) + Metrics(name, value) + ...
+
 
 # Main Interfaces
 
