@@ -1,0 +1,141 @@
+
+# Introduction
+
+Hadoop implements a small and pretty rpc framework. NameNode and DataNode
+communicate using this framework. This framework give us lots of good practice
+demos about design and network programming.
+
+
+# Architecture
+
+The foundation of the rpc framework is the reflect mechanism in java.  A client
+get a interface proxy object which handles all the invocation on the interface.
+The proxy object send the information about the invocation to server. The
+result is returned to the proxy object from server when it is finished.
+
+
+        Client
+
+        |
+        |   get a interface proxy object using java reflect mechanism
+        |
+        v
+
+        Proxy
+
+        |
+        |   send invocation information using TCP
+        |
+        v
+
+        RPC Server
+
+        |
+        |   do the real method call and return the result to Proxy
+        |
+        v
+
+        Proxy
+
+        |
+        |   resolve the real returned value and return it to client
+        |
+        v
+
+        Client
+
+
+# Writable
+
+Writable is a interface which specify that a class can be serialized to stream and
+initialized from stream. Writable defines two important methods.
+
+    write(DataOutput out)
+
+        is used serialize the object to a DataOutput.
+
+    readFields(DataOutput out)
+
+        can initialize the fields from a DataOutput.
+
+# ObjectWritable
+
+ObjectWritable write a intance with its class name. It handles arrays, strings
+and primitive types without a Writable wrapper. ObjectWritable is used to wrapp
+the returned value of the rpc interface. In rpc framework, the ObjectWritable
+is created by two parameters including of declaredClass and instance when a
+interface is successfully invoked. Then, it write the instance with into
+DataOutput.
+
+In client, when the remote call is finished an ObjectWritable is built and
+ObjectWritable.readObject is invoked to initialize the underlying object. In
+this method, the declared class string, written in writeFields method, is read
+first. If the declared class is primitive type, then it is easy to read the
+data by readInt(), readLong(), readBoolean() and so on. If the declared class
+is Writable, then WritableFactories.newInstance is invoked to create a specific
+instance.
+
+Writing and reading array is interesting. The length of array is first written by
+DataOutput.writeInt. And then the array is iterated and each object is written by
+recusivley call the method writeObject.
+
+    // write array
+
+    int length = Array.getLength(instance);
+    out.writeInt(length);
+    for (int i = 0; i < length; i++) {
+    writeObject(out, Array.get(instance, i),
+        declaredClass.getComponentType(), conf);
+    }
+
+    // read array
+
+    int length = in.readInt();
+    instance = Array.newInstance(declaredClass.getComponentType(), length);
+    for (int i = 0; i < length; i++) {
+        Array.set(instance, i, readObject(in, conf));
+    }
+
+Recusive is powerful.
+
+
+# WritableRpcEngine.Invoker
+
+Invoker is the implementation of InvocationHandler. All the rpc invokings are
+done by Invoker. In invoke method, a Invocation object is created to wrap the
+call information.
+
+
+# WritableRpcEngine.Invocation
+
+Invocation is also a Writable. Invocation contains the remote method call
+inforamtion including of methodName, parameters. These information is written
+into the output stream by Invocation.writeFields.
+
+
+# Client
+
+Client connects to the servers and sends the calls into them. The method
+Client.call(Writable param, InetSocketAddress addr, UserGroupInformation ticket)
+is used to do the real remote invocation.
+
+Client.Call represents a method invoking. It is constructed by a Writable param
+object. It also stores the returned value and exception. I think a good
+practice about Client.Call in hadoop is the wait.
+
+The remote call is done at a block manner, the approach to reach is the usage of
+call.wait(). The code below tells us all the secret:
+
+      while (!call.done) {
+        try {
+          call.wait();                           // wait for the result
+        } catch (InterruptedException ie) {
+          // save the fact that we were interrupted
+          interrupted = true;
+        }
+      }
+
+The data is sent in other Thread.
+
+
+
