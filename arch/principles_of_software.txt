@@ -1,0 +1,46 @@
+
+
+What is software engineering
+
+    Software engineering is the construction of software that produces some
+    desired output for some range of inputs.
+
+
+Input of Software
+
+    * The hardware on which software is running.
+
+    * The rate at which it receives data.
+
+    * Anything else that influences the operation of the software.
+
+
+Sources of uncertainty in software
+
+    * We don't know how to make perfect software: bugs can and will be deployed
+      to production.
+
+    * Humans are involed in running software in production. Humans make
+      mistakes.
+
+    * What functionality youre software should have very rarely are the specs
+      fully understood and fleshed out from the let go.
+
+    * The uncertainlity in all dependencies you are using.
+
+    * Not understanding the range of inputs your software will see in
+      production.
+
+
+Engineering for uncertainlity
+
+    * Minimize dependencies
+
+    * Lessen probalities of cascading failures
+
+    * Mesure and monitor
+
+    Software should be designed from the start to be monitored. Monitor aspects of
+    software should be taken considered as important as the functionality of the software
+    itself. Everything should be measured ---- latencies, throughput stats, buffer sizes
+    and anything else relevant to the application.
