@@ -1,0 +1,26 @@
+
+DO
+
+    Ask for clarification on a problem if you didn't understand something or
+    if there is any ambiguity.
+
+    Let the interviewer know what you are thinking.
+
+    Suggest mulitple approaches to the problem.
+
+    Bounce ideas off the interviewer (such as ideas for data structures or algorithms).
+
+    If you get stuck, don't be afraid to let them know and politely ask for a hint.
+
+
+DON'T
+
+    Never give up! This says nothing good about your problem solving skills.
+
+    Don't just sit in silence while thinking. The interviewer has limited time to
+    find out as much as possible about you, and not talking with them tell them
+    nothing, except that you can sit there silently.
+
+    If you already know the answer, don't just blurt it out! They will suspect that
+    you already knew the answer and did't tell them you have seen the question before.
+    At least pretend to be thinking though the problem before you give the answer!
