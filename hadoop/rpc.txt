@@ -137,5 +137,27 @@ call.wait(). The code below tells us all the secret:
 
 The data is sent in other Thread.
 
+Typically, a socket connection is wrapped by a Connection object. Connection has
+three base operations:
 
+    * Setup connection, send the protocol header.
+
+    * Send data into socket channel.
+
+    * Receive data from socket channel.
+
+It is important to handle exception for a robust program, especially for
+network program. We should not ignore exceptions because the states about the
+connection have been irrupted. There are different strategies for different cases.
+
+    * Timeout to establish a socket connection
+
+    The best choice for this case may be retires. If the server is not connected
+    successfully the Connection is not ready to be used. The only thing to do is to
+    connect to the server with some retries.
+
+    * Timeout to read or write data to socket connection
+
+    We should close the connection. On the other hand, the connection holds some calls and
+    some threads are waiting on the calls. We should fail the calls and notify the threads.
 
